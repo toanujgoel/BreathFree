@@ -9,10 +9,10 @@ interface ContentHubProps {
 }
 
 const interestTopics = [
-  { name: 'Managing Cravings', icon: <Zap size={24} /> },
-  { name: 'Healthy Eating', icon: <Utensils size={24} /> },
-  { name: 'Exercise Benefits', icon: <Heart size={24} /> },
-  { name: 'Mindfulness', icon: <Book size={24} /> },
+  { name: 'Managing Cravings', icon: <Zap size={20} /> },
+  { name: 'Healthy Eating', icon: <Utensils size={20} /> },
+  { name: 'Exercise Benefits', icon: <Heart size={20} /> },
+  { name: 'Mindfulness', icon: <Book size={20} /> },
 ];
 
 const ContentHub: React.FC<ContentHubProps> = ({ userProfile }) => {
@@ -47,14 +47,14 @@ const ContentHub: React.FC<ContentHubProps> = ({ userProfile }) => {
         <p className="text-text-secondary">Find inspiration and tips for your journey.</p>
       </header>
 
-      <div className="flex space-x-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap gap-2">
         {interestTopics.map((topic) => (
           <button
             key={topic.name}
             onClick={() => setSelectedTopic(topic.name)}
-            className={`flex-shrink-0 px-4 py-2 rounded-full font-semibold transition-colors flex items-center gap-2 ${
+            className={`flex-shrink-0 px-4 py-2 rounded-full font-semibold transition-colors flex items-center gap-2 text-sm md:text-base ${
               selectedTopic === topic.name
-                ? 'bg-brand-primary text-white'
+                ? 'bg-brand-primary text-white shadow'
                 : 'bg-bg-card text-text-primary hover:bg-gray-200'
             }`}
           >

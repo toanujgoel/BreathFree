@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { UserProfile, QuitPlan, Methodology } from '../types';
 import { generateQuitPlan } from '../services/geminiService';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Plus } from 'lucide-react';
 
 interface OnboardingProps {
     onOnboardingComplete: (profile: UserProfile, plan: QuitPlan) => void;
@@ -28,14 +28,12 @@ const Onboarding: React.FC<OnboardingProps> = ({ onOnboardingComplete }) => {
         const { name, value } = e.target;
         const [section, field] = name.split('.');
         if (field) {
-            // FIX: Cast to `object` to resolve "Spread types may only be created from object types" error.
             setFormData(prev => ({ ...prev, [section]: { ...(prev[section as keyof UserProfile] as object), [field]: value } }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
     
-    // FIX: Rewrote the logic to be type-safe, resolving the type incompatibility error for `triggers`.
     const handleMultiSelect = (category: keyof UserProfile['triggers'], value: string) => {
         setFormData(prev => {
             const currentTriggers = prev.triggers ?? { contextual: [], emotional: [], location: [], social: [] };
@@ -135,21 +133,56 @@ const TriggerStep: React.FC<{formData: any; onSelect: any; onNext: () => void; o
         emotional: ["Stress", "Boredom", "Anxiety", "Celebrating", "Sadness"],
     };
 
+    const [customContextual, setCustomContextual] = useState('');
+    const [customEmotional, setCustomEmotional] = useState('');
+
+    const handleAddCustom = (category: keyof UserProfile['triggers'], value: string, setValue: React.Dispatch<React.SetStateAction<string>>) => {
+        if (value.trim() !== '') {
+            onSelect(category, value.trim());
+            setValue('');
+        }
+    };
+    
+    const userContextualTriggers = (formData.triggers?.contextual || []).filter((t: string) => !triggers.contextual.includes(t));
+    const userEmotionalTriggers = (formData.triggers?.emotional || []).filter((t: string) => !triggers.emotional.includes(t));
+
     return (
         <div className="relative animate-fade-in">
             <BackButton onClick={onBack} />
             <h2 className="text-3xl font-bold text-center mb-6">What Are Your Triggers?</h2>
-            <div className="space-y-4">
+            <div className="space-y-6">
                 <div>
                     <h3 className="font-semibold mb-2">When do you usually smoke?</h3>
                     <div className="flex flex-wrap gap-2">
                         {triggers.contextual.map(t => <Chip key={t} label={t} selected={(formData.triggers.contextual || []).includes(t)} onClick={() => onSelect('contextual', t)} />)}
+                        {userContextualTriggers.map((t: string) => <Chip key={t} label={t} selected={true} onClick={() => onSelect('contextual', t)} />)}
+                    </div>
+                     <div className="flex gap-2 mt-3">
+                        <input 
+                            type="text" 
+                            value={customContextual} 
+                            onChange={(e) => setCustomContextual(e.target.value)}
+                            placeholder="Add your own..."
+                            className="w-full p-2 bg-white/20 rounded-lg placeholder-white/70 text-sm focus:outline-none focus:ring-2 focus:ring-white"
+                        />
+                        <button onClick={() => handleAddCustom('contextual', customContextual, setCustomContextual)} className="bg-white text-brand-primary font-bold px-4 rounded-lg text-sm flex items-center justify-center"><Plus size={16}/></button>
                     </div>
                 </div>
                 <div>
                     <h3 className="font-semibold mb-2">How do you feel when you smoke?</h3>
                     <div className="flex flex-wrap gap-2">
                         {triggers.emotional.map(t => <Chip key={t} label={t} selected={(formData.triggers.emotional || []).includes(t)} onClick={() => onSelect('emotional', t)} />)}
+                         {userEmotionalTriggers.map((t: string) => <Chip key={t} label={t} selected={true} onClick={() => onSelect('emotional', t)} />)}
+                    </div>
+                    <div className="flex gap-2 mt-3">
+                        <input 
+                            type="text" 
+                            value={customEmotional} 
+                            onChange={(e) => setCustomEmotional(e.target.value)}
+                            placeholder="Add your own..."
+                            className="w-full p-2 bg-white/20 rounded-lg placeholder-white/70 text-sm focus:outline-none focus:ring-2 focus:ring-white"
+                        />
+                        <button onClick={() => handleAddCustom('emotional', customEmotional, setCustomEmotional)} className="bg-white text-brand-primary font-bold px-4 rounded-lg text-sm flex items-center justify-center"><Plus size={16}/></button>
                     </div>
                 </div>
             </div>
@@ -170,6 +203,17 @@ const HabitStep: React.FC<{formData: any; onSelect: any; onNext: () => void; onB
         "Listen to one song mindfully",
     ];
 
+    const [customHabit, setCustomHabit] = useState('');
+
+    const handleAddCustom = () => {
+        if (customHabit.trim() !== '') {
+            onSelect(customHabit.trim());
+            setCustomHabit('');
+        }
+    };
+    
+    const userHabits = (formData.replacementHabits || []).filter((h: string) => !habits.includes(h));
+
     return (
         <div className="relative animate-fade-in">
             <BackButton onClick={onBack} />
@@ -177,6 +221,17 @@ const HabitStep: React.FC<{formData: any; onSelect: any; onNext: () => void; onB
             <p className="text-center mb-4 opacity-90">Choose some go-to replacement habits for when a craving hits.</p>
             <div className="flex flex-wrap gap-2 justify-center">
                 {habits.map(h => <Chip key={h} label={h} selected={(formData.replacementHabits || []).includes(h)} onClick={() => onSelect(h)} />)}
+                {userHabits.map((h: string) => <Chip key={h} label={h} selected={true} onClick={() => onSelect(h)} />)}
+            </div>
+            <div className="flex gap-2 mt-4 max-w-sm mx-auto">
+                 <input 
+                    type="text" 
+                    value={customHabit} 
+                    onChange={(e) => setCustomHabit(e.target.value)}
+                    placeholder="Add a custom habit..."
+                    className="w-full p-2 bg-white/20 rounded-lg placeholder-white/70 text-sm focus:outline-none focus:ring-2 focus:ring-white"
+                />
+                <button onClick={handleAddCustom} className="bg-white text-brand-primary font-bold px-4 rounded-lg text-sm flex items-center justify-center"><Plus size={16}/></button>
             </div>
             <div className="mt-8">
                 <OnboardingButton onClick={onNext}>Almost Done</OnboardingButton>
