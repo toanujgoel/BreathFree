@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type, GenerateContentResponse, Chat } from "@google/genai";
-import { UserProfile, Methodology, ChatMessage, ContentItem } from '../types';
+import { OnboardingProfile, QuitPlan, Methodology, LegacyChatMessage, ContentItem } from '../types';
 
 const API_KEY = process.env.API_KEY;
 
@@ -42,11 +42,11 @@ const quitPlanSchema = {
     required: ['methodology', 'dailyPlans'],
 };
 
-export const generateQuitPlan = async (userProfile: UserProfile) => {
+export const generateQuitPlan = async (userProfile: OnboardingProfile) => {
     const model = ai.models.generateContent;
     
     const prompt = `
-        You are an empathetic and expert AI smoking cessation coach named 'BreatheFree'.
+        You are an empathetic and expert AI smoking cessation coach named 'CleverQuit'.
         Your task is to create a personalized, 7-day 'Quit Plan' for a user based on their profile.
         The tone must be supportive, non-judgmental, and highly encouraging.
 
@@ -92,12 +92,12 @@ export const startChat = () => {
     chat = ai.chats.create({
         model: 'gemini-2.5-flash',
         config: {
-            systemInstruction: 'You are a friendly, supportive AI coach for someone trying to quit smoking. Keep your answers concise, empathetic, and encouraging. Your name is BreatheFree.',
+            systemInstruction: 'You are a friendly, supportive AI coach for someone trying to quit smoking. Keep your answers concise, empathetic, and encouraging. Your name is CleverQuit.',
         },
     });
 };
 
-export const sendMessageToBot = async (message: string, history: ChatMessage[]): Promise<string> => {
+export const sendMessageToBot = async (message: string, history: LegacyChatMessage[]): Promise<string> => {
     if (!chat) {
         startChat();
     }

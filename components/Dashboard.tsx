@@ -103,7 +103,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userProfile, quitPlan, progressDa
     setShowCheckInModal(false);
     const newProgress = { ...progressData, cravingsLogged: progressData.cravingsLogged + 1 };
     setProgressData(newProgress);
-    localStorage.setItem('breathefree_progressData', JSON.stringify(newProgress));
+    localStorage.setItem('cleverquit_progressData', JSON.stringify(newProgress));
   };
   
   const handleCravingSmoked = async () => {
@@ -124,7 +124,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userProfile, quitPlan, progressDa
     };
 
     setProgressData(newProgress);
-    localStorage.setItem('breathefree_progressData', JSON.stringify(newProgress));
+    localStorage.setItem('cleverquit_progressData', JSON.stringify(newProgress));
 
     setTimeout(() => setRelapseMessage(''), 8000);
   };

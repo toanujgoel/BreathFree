@@ -1,18 +1,20 @@
 
 import React, { useState } from 'react';
-import { UserProfile, QuitPlan, Methodology } from '../types';
+import { OnboardingProfile, QuitPlan, Methodology } from '../types';
 import { generateQuitPlan } from '../services/geminiService';
+import { useAuth } from './AuthContext';
 import { ArrowLeft, Loader2, Plus } from 'lucide-react';
 
 interface OnboardingProps {
-    onOnboardingComplete: (profile: UserProfile, plan: QuitPlan) => void;
+    onComplete: (profile: OnboardingProfile, plan: QuitPlan) => void;
 }
 
-const Onboarding: React.FC<OnboardingProps> = ({ onOnboardingComplete }) => {
+const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+    const { user, updateProfile } = useAuth();
     const [step, setStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [formData, setFormData] = useState<Partial<UserProfile>>({
+    const [formData, setFormData] = useState<Partial<OnboardingProfile>>({
         name: '',
         smokingProfile: { cigsPerDay: 10, yearsSmoking: 5, motivation: '' },
         biometrics: { age: 30, height: 175, weight: 70, activityLevel: 'Moderately Active' },
@@ -28,13 +30,13 @@ const Onboarding: React.FC<OnboardingProps> = ({ onOnboardingComplete }) => {
         const { name, value } = e.target;
         const [section, field] = name.split('.');
         if (field) {
-            setFormData(prev => ({ ...prev, [section]: { ...(prev[section as keyof UserProfile] as object), [field]: value } }));
+            setFormData(prev => ({ ...prev, [section]: { ...(prev[section as keyof OnboardingProfile] as object), [field]: value } }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
     
-    const handleMultiSelect = (category: keyof UserProfile['triggers'], value: string) => {
+    const handleMultiSelect = (category: keyof OnboardingProfile['triggers'], value: string) => {
         setFormData(prev => {
             const currentTriggers = prev.triggers ?? { contextual: [], emotional: [], location: [], social: [] };
             const currentSelection = currentTriggers[category];
@@ -58,10 +60,23 @@ const Onboarding: React.FC<OnboardingProps> = ({ onOnboardingComplete }) => {
     const handleMethodologySelect = async (methodology: Methodology) => {
         setIsLoading(true);
         setError(null);
-        const finalProfile = { ...formData, quitMethodology: methodology } as UserProfile;
+        const finalProfile = { ...formData, quitMethodology: methodology } as OnboardingProfile;
         try {
             const plan = await generateQuitPlan(finalProfile);
-            onOnboardingComplete(finalProfile, plan);
+            
+            // Update user profile in Supabase
+            if (user && finalProfile.name) {
+                await updateProfile({
+                    name: finalProfile.name,
+                    cigarettes_per_day: finalProfile.smokingProfile?.cigsPerDay || 0,
+                    motivation: finalProfile.smokingProfile?.motivation || '',
+                    years_smoking: finalProfile.smokingProfile?.yearsSmoking || 0,
+                    age: finalProfile.biometrics?.age || 0,
+                    quit_date: new Date().toISOString().split('T')[0]
+                });
+            }
+            
+            onComplete(finalProfile, plan);
         } catch (e: any) {
             setError(e.message || "An unexpected error occurred.");
             setIsLoading(false);
@@ -104,7 +119,7 @@ const BackButton: React.FC<{onClick: () => void}> = ({onClick}) => (
 const WelcomeStep: React.FC<{onNext: () => void}> = ({ onNext }) => (
     <div className="text-center animate-fade-in">
         <h1 className="text-4xl font-bold mb-2">Welcome to</h1>
-        <h2 className="text-5xl font-extrabold mb-6 text-brand-light tracking-tight">BreatheFree</h2>
+        <h2 className="text-5xl font-extrabold mb-6 text-brand-light tracking-tight">CleverQuit</h2>
         <p className="text-lg mb-8 opacity-90">Your personalized, AI-powered journey to a smoke-free life starts now.</p>
         <OnboardingButton onClick={onNext}>Let's Get Started</OnboardingButton>
     </div>
@@ -136,7 +151,7 @@ const TriggerStep: React.FC<{formData: any; onSelect: any; onNext: () => void; o
     const [customContextual, setCustomContextual] = useState('');
     const [customEmotional, setCustomEmotional] = useState('');
 
-    const handleAddCustom = (category: keyof UserProfile['triggers'], value: string, setValue: React.Dispatch<React.SetStateAction<string>>) => {
+    const handleAddCustom = (category: keyof OnboardingProfile['triggers'], value: string, setValue: React.Dispatch<React.SetStateAction<string>>) => {
         if (value.trim() !== '') {
             onSelect(category, value.trim());
             setValue('');
