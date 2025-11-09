@@ -29,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (error) {
           console.error('Error getting session:', error)
+          setLoading(false)
           return
         }
 
@@ -41,6 +42,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           // Fetch user profile
           await fetchUserProfile(session.user.id)
+        } else {
+          console.log('No active session found')
         }
       } catch (error) {
         console.error('Error in getInitialSession:', error)
@@ -50,6 +53,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     getInitialSession()
+
+    // Fallback timeout to prevent infinite loading
+    const loadingTimeout = setTimeout(() => {
+      console.log('Loading timeout reached, setting loading to false')
+      setLoading(false)
+    }, 5000) // 5 seconds timeout
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -73,7 +82,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(loadingTimeout)
+    }
   }, [])
 
   const fetchUserProfile = async (userId: string) => {

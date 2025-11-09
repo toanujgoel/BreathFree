@@ -7,21 +7,24 @@ import { ArrowLeft, Loader2, Plus } from 'lucide-react';
 
 interface OnboardingProps {
     onComplete: (profile: OnboardingProfile, plan: QuitPlan) => void;
+    initialProfile?: OnboardingProfile;
 }
 
-const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+const Onboarding: React.FC<OnboardingProps> = ({ onComplete, initialProfile }) => {
     const { user, updateProfile } = useAuth();
     const [step, setStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [formData, setFormData] = useState<Partial<OnboardingProfile>>({
-        name: '',
-        smokingProfile: { cigsPerDay: 10, yearsSmoking: 5, motivation: '' },
-        biometrics: { age: 30, height: 175, weight: 70, activityLevel: 'Moderately Active' },
-        triggers: { contextual: [], emotional: [], location: [], social: [] },
-        positiveGoals: { activities: [], content: [] },
-        replacementHabits: [],
-    });
+    const [formData, setFormData] = useState<Partial<OnboardingProfile>>(
+        initialProfile || {
+            name: '',
+            smokingProfile: { cigsPerDay: 10, yearsSmoking: 5, motivation: '' },
+            biometrics: { age: 30, height: 175, weight: 70, activityLevel: 'Moderately Active' },
+            triggers: { contextual: [], emotional: [], location: [], social: [] },
+            positiveGoals: { activities: [], content: [] },
+            replacementHabits: [],
+        }
+    );
 
     const handleNext = () => setStep(prev => prev + 1);
     const handleBack = () => setStep(prev => prev - 1);

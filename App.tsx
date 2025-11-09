@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import { AuthScreen } from './components/AuthScreen';
 import Onboarding from './components/Onboarding';
+import ValueFirstOnboarding from './components/ValueFirstOnboarding';
+import PaywallScreen from './components/PaywallScreen';
+import DiscountOfferScreen from './components/DiscountOfferScreen';
 import Dashboard from './components/Dashboard';
 import ProgressTracker from './components/ProgressTracker';
 import ContentHub from './components/ContentHub';
@@ -10,17 +13,72 @@ import Settings from './components/Settings';
 import { AppView, OnboardingProfile, QuitPlan, ProgressData, Subscription, SubscriptionStatus } from './types';
 import { Feather, BookOpen, MessageSquare, BarChart2, Settings as SettingsIcon } from 'lucide-react';
 
+// Define onboarding flow states
+enum OnboardingFlow {
+  ValueFirst = 'value-first',
+  Paywall = 'paywall',
+  Discount = 'discount',
+  Auth = 'auth',
+  Profile = 'profile',
+  Complete = 'complete'
+}
+
 // Main authenticated app component
 const AuthenticatedApp: React.FC = () => {
   const { user, profile, loading, signOut } = useAuth();
   const [currentView, setCurrentView] = useState<AppView>(AppView.Dashboard);
   const [quitPlan, setQuitPlan] = useState<QuitPlan | null>(null);
   const [progressData, setProgressData] = useState<ProgressData | null>(null);
+  const [onboardingFlow, setOnboardingFlow] = useState<OnboardingFlow>(OnboardingFlow.ValueFirst);
+  const [collectedProfile, setCollectedProfile] = useState<OnboardingProfile | null>(null);
   const [subscription, setSubscription] = useState<Subscription>({
     status: SubscriptionStatus.Trial,
     endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
   });
 
+  // Handle value-first onboarding completion
+  const handleValueFirstComplete = (onboardingProfile: OnboardingProfile) => {
+    setCollectedProfile(onboardingProfile);
+    setOnboardingFlow(OnboardingFlow.Paywall);
+  };
+
+  // Handle paywall completion
+  const handlePaywallComplete = (selectedPlan: 'free' | 'premium') => {
+    if (selectedPlan === 'premium') {
+      setSubscription({
+        status: SubscriptionStatus.Premium,
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days
+      });
+    }
+    setOnboardingFlow(OnboardingFlow.Auth);
+  };
+
+  // Handle showing discount offer
+  const handleShowDiscount = () => {
+    setOnboardingFlow(OnboardingFlow.Discount);
+  };
+
+  // Handle discount acceptance
+  const handleDiscountAccept = () => {
+    setSubscription({
+      status: SubscriptionStatus.Premium,
+      endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year
+    });
+    setOnboardingFlow(OnboardingFlow.Auth);
+  };
+
+  // Handle discount decline (go back to welcome)
+  const handleDiscountDecline = () => {
+    setOnboardingFlow(OnboardingFlow.ValueFirst);
+    setCollectedProfile(null);
+  };
+
+  // Handle authentication completion
+  const handleAuthComplete = () => {
+    setOnboardingFlow(OnboardingFlow.Profile);
+  };
+
+  // Handle final onboarding completion (create quit plan)
   const handleOnboardingComplete = (onboardingProfile: OnboardingProfile, plan: QuitPlan) => {
     const initialProgress: ProgressData = {
       smokeFreeStreak: 0,
@@ -34,6 +92,7 @@ const AuthenticatedApp: React.FC = () => {
 
     setQuitPlan(plan);
     setProgressData(initialProgress);
+    setOnboardingFlow(OnboardingFlow.Complete);
   };
 
   const handleReset = async () => {
@@ -66,28 +125,97 @@ const AuthenticatedApp: React.FC = () => {
     }
   };
 
-  // Show loading state
+  // Show loading state during initial auth check
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-blue-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your quit smoking journey...</p>
+          <p className="mt-4 text-gray-600">Loading CleverQuit...</p>
         </div>
       </div>
     );
   }
 
-  // Show auth screen if not logged in
-  if (!user) {
-    return <AuthScreen />;
+  // If user is already authenticated and has complete profile, skip onboarding
+  if (user && profile && quitPlan && progressData && onboardingFlow !== OnboardingFlow.Complete) {
+    setOnboardingFlow(OnboardingFlow.Complete);
   }
 
-  // Show onboarding if profile is incomplete or no quit plan
-  if (!profile || !quitPlan || !progressData) {
+  // Value-first onboarding flow
+  if (onboardingFlow === OnboardingFlow.ValueFirst) {
+    return <ValueFirstOnboarding onComplete={handleValueFirstComplete} />;
+  }
+
+  // Paywall screen
+  if (onboardingFlow === OnboardingFlow.Paywall && collectedProfile) {
+    return (
+      <PaywallScreen 
+        userProfile={collectedProfile} 
+        onComplete={handlePaywallComplete}
+        onShowDiscount={handleShowDiscount}
+        onCancel={handleDiscountDecline}
+      />
+    );
+  }
+
+  // Discount offer screen
+  if (onboardingFlow === OnboardingFlow.Discount && collectedProfile) {
+    return (
+      <DiscountOfferScreen
+        userProfile={collectedProfile}
+        onAcceptDiscount={handleDiscountAccept}
+        onDecline={handleDiscountDecline}
+      />
+    );
+  }
+
+  // Handle case where paywall should show but profile is missing
+  if (onboardingFlow === OnboardingFlow.Paywall && !collectedProfile) {
+    setOnboardingFlow(OnboardingFlow.ValueFirst);
+    return <ValueFirstOnboarding onComplete={handleValueFirstComplete} />;
+  }
+
+  // Authentication screen
+  if (onboardingFlow === OnboardingFlow.Auth && !user) {
+    return <AuthScreen onComplete={handleAuthComplete} />;
+  }
+
+  // Profile completion onboarding
+  if (onboardingFlow === OnboardingFlow.Profile && user && collectedProfile && (!profile || !quitPlan || !progressData)) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <Onboarding onComplete={handleOnboardingComplete} />
+        <Onboarding 
+          onComplete={handleOnboardingComplete} 
+          initialProfile={collectedProfile} 
+        />
+      </div>
+    );
+  }
+
+  // If user is logged in but onboarding isn't complete, show appropriate step
+  if (user && (!profile || !quitPlan || !progressData)) {
+    if (onboardingFlow !== OnboardingFlow.Profile) {
+      setOnboardingFlow(OnboardingFlow.Profile);
+    }
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Onboarding 
+          onComplete={handleOnboardingComplete} 
+          initialProfile={collectedProfile} 
+        />
+      </div>
+    );
+  }
+
+  // Ensure we have all required data before rendering main app
+  if (!user || !profile || !quitPlan || !progressData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-blue-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Setting up your quit smoking journey...</p>
+        </div>
       </div>
     );
   }
