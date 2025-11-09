@@ -29,7 +29,8 @@ export interface OnboardingProfile {
   smokingProfile: {
     cigsPerDay: number;
     yearsSmoking: number;
-    motivation: string;
+    motivation?: string; // Keep for backward compatibility
+    motivations: string[]; // New multiple motivations field
   };
   biometrics: {
     age: number;
