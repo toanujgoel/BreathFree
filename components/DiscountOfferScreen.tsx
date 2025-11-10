@@ -30,7 +30,7 @@ const DiscountOfferScreen: React.FC<DiscountOfferScreenProps> = ({
     };
 
     // Calculate savings
-    const dailyCigaretteCost = 15;
+    const dailyCigaretteCost = 0.50;
     const dailySavings = (userProfile.smokingProfile?.cigsPerDay || 10) * dailyCigaretteCost;
     const yearlySavings = dailySavings * 365;
 
@@ -66,11 +66,11 @@ const DiscountOfferScreen: React.FC<DiscountOfferScreenProps> = ({
                         {/* Pricing */}
                         <div className="mb-6">
                             <div className="flex items-center justify-center mb-2">
-                                <span className="text-2xl text-gray-500 line-through mr-3">₹4,188</span>
+                                <span className="text-2xl text-gray-500 line-through mr-3">$199.99</span>
                                 <span className="text-sm bg-red-100 text-red-600 px-2 py-1 rounded">Regular Price</span>
                             </div>
                             <div className="flex items-center justify-center mb-2">
-                                <span className="text-5xl font-bold text-gradient bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">₹999</span>
+                                <span className="text-5xl font-bold text-gradient bg-gradient-to-r from-red-500 to-orange-500 text-transparent bg-clip-text">$149.99</span>
                                 <span className="text-xl text-gray-600 ml-2">/year</span>
                             </div>
                             <div className="flex items-center justify-center mb-2">
@@ -79,14 +79,14 @@ const DiscountOfferScreen: React.FC<DiscountOfferScreenProps> = ({
                                 </span>
                             </div>
                             <p className="text-sm text-green-600 font-bold">
-                                That's just ₹2.74/day - Less than a single cigarette!
+                                That's just $0.41/day - Less than a single cigarette!
                             </p>
                         </div>
 
                         {/* Savings Highlight */}
                         <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-xl mb-6">
                             <p className="text-sm opacity-90">With your smoking habit, you'll save</p>
-                            <p className="text-3xl font-bold">₹{(yearlySavings - 999).toLocaleString()}</p>
+                            <p className="text-3xl font-bold">${(yearlySavings - 149.99).toLocaleString()}</p>
                             <p className="text-sm opacity-90">in your first year alone!</p>
                         </div>
 
@@ -139,7 +139,7 @@ const DiscountOfferScreen: React.FC<DiscountOfferScreenProps> = ({
                         className="w-full bg-gradient-to-r from-red-500 to-orange-500 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center"
                     >
                         <Crown className="w-5 h-5 mr-2" />
-                        Get 76% OFF - Only ₹999/year
+                        Get 25% OFF - Only $149.99 Lifetime
                         <ArrowRight className="w-5 h-5 ml-2" />
                     </button>
 

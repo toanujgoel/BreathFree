@@ -19,7 +19,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
     const [selectedPlan, setSelectedPlan] = useState<'free' | 'premium'>('free');
     
     // Calculate personalized savings
-    const dailyCigaretteCost = 15; // ₹15 per cigarette average
+    const dailyCigaretteCost = 0.50; // $0.50 per cigarette average
     const dailySavings = (userProfile.smokingProfile?.cigsPerDay || 10) * dailyCigaretteCost;
     const monthlySavings = dailySavings * 30;
     const yearlySavings = dailySavings * 365;
@@ -49,7 +49,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
                     <div className="grid grid-cols-2 gap-4 mb-4">
                         <div className="text-center p-3 bg-emerald-50 rounded-xl">
                             <p className="text-2xl font-bold text-emerald-600">
-                                ₹{dailySavings.toLocaleString()}
+                                ${dailySavings.toLocaleString()}
                             </p>
                             <p className="text-sm text-gray-600">Daily Savings</p>
                         </div>
@@ -63,7 +63,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
 
                     <div className="text-center p-4 bg-gradient-to-r from-emerald-500 to-blue-500 rounded-xl text-white">
                         <p className="text-sm opacity-90">Potential Yearly Savings</p>
-                        <p className="text-3xl font-bold">₹{yearlySavings.toLocaleString()}</p>
+                        <p className="text-3xl font-bold">${yearlySavings.toLocaleString()}</p>
                     </div>
                 </div>
 
@@ -94,7 +94,7 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
                                 <span className="text-gray-600 ml-2">for 7 days</span>
                             </div>
                             <p className="text-sm text-gray-600 mt-1">
-                                Then ₹399/month (₹13/day - less than a cigarette!)
+                                Then $9.99/month ($0.33/day - less than a cigarette!)
                             </p>
                         </div>
 
@@ -142,20 +142,67 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
                             </div>
                         </div>
 
-                        <div className="mb-4">
-                            <div className="flex items-baseline">
-                                <span className="text-lg text-gray-500 line-through mr-2">₹399</span>
-                                <span className="text-4xl font-bold text-gray-900">₹349</span>
-                                <span className="text-gray-600 ml-2">/month</span>
-                            </div>
-                            <p className="text-sm text-emerald-600 font-medium mt-1">
-                                💰 Save ₹600/year • Most Popular Choice
-                            </p>
-                            <div className="flex items-center mt-2">
-                                <div className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-medium">
-                                    Best Value
+                        {/* Pricing Options */}
+                        <div className="space-y-3 mb-4">
+                            {/* Monthly Plan */}
+                            <div className="border-2 border-purple-200 rounded-lg p-3">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="font-semibold text-gray-900">Monthly</p>
+                                        <p className="text-sm text-gray-600">$9.99/month</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-lg font-bold text-gray-900">$9.99</p>
+                                        <p className="text-xs text-gray-500">per month</p>
+                                    </div>
                                 </div>
-                                <span className="text-xs text-gray-500 ml-2">vs monthly subscription</span>
+                            </div>
+                            
+                            {/* Quarterly Plan */}
+                            <div className="border-2 border-emerald-300 rounded-lg p-3 bg-emerald-50">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="font-semibold text-gray-900">Quarterly</p>
+                                        <p className="text-sm text-emerald-600">$24.99 (17% savings)</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-lg font-bold text-gray-900">$24.99</p>
+                                        <p className="text-xs text-gray-500">~$8.33/month</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Annual Plan - Most Popular */}
+                            <div className="border-2 border-blue-400 rounded-lg p-3 bg-blue-50 relative">
+                                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                                    <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                                        Most Popular
+                                    </span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="font-semibold text-gray-900">Annual</p>
+                                        <p className="text-sm text-blue-600">$79.99 (33% savings)</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-lg font-bold text-gray-900">$79.99</p>
+                                        <p className="text-xs text-gray-500">~$6.67/month</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Lifetime Plan */}
+                            <div className="border-2 border-purple-400 rounded-lg p-3 bg-purple-50">
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <p className="font-semibold text-gray-900">Lifetime</p>
+                                        <p className="text-sm text-purple-600">One-time purchase</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-lg font-bold text-gray-900">$199.99</p>
+                                        <p className="text-xs text-gray-500">forever</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

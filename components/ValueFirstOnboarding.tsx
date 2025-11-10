@@ -460,6 +460,27 @@ const TriggersScreen: React.FC<{
                                             <Plus className="w-4 h-4" />
                                         </button>
                                     </div>
+                                    {/* Show custom emotional triggers */}
+                                    {formData.triggers?.emotional && formData.triggers.emotional.length > 0 && (
+                                        <div className="mt-2 flex flex-wrap gap-1">
+                                            {formData.triggers.emotional.filter(trigger => 
+                                                !['Stress', 'Anxiety', 'Boredom', 'Sadness', 'Anger', 'Celebration'].includes(trigger)
+                                            ).map((customTrigger) => (
+                                                <span
+                                                    key={customTrigger}
+                                                    className="inline-flex items-center px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full"
+                                                >
+                                                    {customTrigger}
+                                                    <button
+                                                        onClick={() => handleTriggerToggle('emotional', customTrigger)}
+                                                        className="ml-1 text-emerald-500 hover:text-emerald-700"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="block text-sm text-gray-600 mb-1">Custom activity trigger:</label>
@@ -494,6 +515,27 @@ const TriggersScreen: React.FC<{
                                             <Plus className="w-4 h-4" />
                                         </button>
                                     </div>
+                                    {/* Show custom contextual triggers */}
+                                    {formData.triggers?.contextual && formData.triggers.contextual.length > 0 && (
+                                        <div className="mt-2 flex flex-wrap gap-1">
+                                            {formData.triggers.contextual.filter(trigger => 
+                                                !['After meals', 'With coffee', 'Work breaks', 'Driving', 'Phone calls', 'Waiting'].includes(trigger)
+                                            ).map((customTrigger) => (
+                                                <span
+                                                    key={customTrigger}
+                                                    className="inline-flex items-center px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full"
+                                                >
+                                                    {customTrigger}
+                                                    <button
+                                                        onClick={() => handleTriggerToggle('contextual', customTrigger)}
+                                                        className="ml-1 text-emerald-500 hover:text-emerald-700"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -653,7 +695,7 @@ const ValueFirstOnboarding: React.FC<ValueFirstOnboardingProps> = ({ onComplete 
         
         try {
             // Add a small delay to show loading state
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 300));
             onComplete(finalProfile);
         } catch (error) {
             console.error('Error completing onboarding:', error);

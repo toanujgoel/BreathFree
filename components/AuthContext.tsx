@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const loadingTimeout = setTimeout(() => {
       console.log('Loading timeout reached, setting loading to false')
       setLoading(false)
-    }, 5000) // 5 seconds timeout
+    }, 3000) // 3 seconds timeout - reduced for better UX
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -71,14 +71,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         setUser(authUser)
         
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          await fetchUserProfile(session.user.id)
-        }
+        // Always fetch profile for authenticated users
+        await fetchUserProfile(session.user.id)
       } else {
         setUser(null)
         setProfile(null)
       }
       
+      // Only set loading to false after profile fetch is complete
       setLoading(false)
     })
 
