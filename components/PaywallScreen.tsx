@@ -290,8 +290,15 @@ const PaywallScreen: React.FC<PaywallScreenProps> = ({
                         </div>
                     </div>
                     <p className="text-xs text-gray-500">
-                        No hidden fees • Cancel within 7 days for full refund
+                        No hidden fees • All sales final • Cancel anytime
                     </p>
+                    <div className="flex items-center justify-center space-x-3 text-xs text-gray-400 pt-2">
+                        <button className="hover:text-blue-600 transition-colors">Terms</button>
+                        <span>•</span>
+                        <button className="hover:text-blue-600 transition-colors">Privacy</button>
+                        <span>•</span>
+                        <button className="hover:text-blue-600 transition-colors">Refund Policy</button>
+                    </div>
                 </div>
             </div>
         </div>

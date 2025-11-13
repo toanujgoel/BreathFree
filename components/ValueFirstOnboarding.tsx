@@ -6,10 +6,11 @@ import { ArrowLeft, ArrowRight, Loader2, Plus, Check, Star, Shield, Target, Brai
 
 interface ValueFirstOnboardingProps {
     onComplete: (profile: OnboardingProfile) => void;
+    onNavigateToPolicy?: (page: 'terms' | 'privacy' | 'refund' | 'contact') => void;
 }
 
 // New Welcome Screen Component
-const WelcomeScreen: React.FC<{ onNext: () => void }> = ({ onNext }) => (
+const WelcomeScreen: React.FC<{ onNext: () => void; onNavigateToPolicy?: (page: 'terms' | 'privacy' | 'refund' | 'contact') => void }> = ({ onNext, onNavigateToPolicy }) => (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-purple-50 flex flex-col justify-center items-center p-6">
         <div className="text-center max-w-md mx-auto">
             {/* Logo/Icon */}
@@ -56,6 +57,43 @@ const WelcomeScreen: React.FC<{ onNext: () => void }> = ({ onNext }) => (
             </button>
 
             <p className="text-sm text-gray-500 mt-4">Takes just 2 minutes • No signup required</p>
+            
+            {/* Policy Links */}
+            <div className="mt-8 space-y-2">
+                <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-gray-500">
+                    <button 
+                        onClick={() => onNavigateToPolicy?.('terms')}
+                        className="hover:text-blue-600 hover:underline transition-colors"
+                    >
+                        Terms & Conditions
+                    </button>
+                    <span className="text-gray-300">•</span>
+                    <button 
+                        onClick={() => onNavigateToPolicy?.('privacy')}
+                        className="hover:text-blue-600 hover:underline transition-colors"
+                    >
+                        Privacy Policy
+                    </button>
+                    <span className="text-gray-300">•</span>
+                    <button 
+                        onClick={() => onNavigateToPolicy?.('refund')}
+                        className="hover:text-blue-600 hover:underline transition-colors"
+                    >
+                        Refund Policy
+                    </button>
+                    <span className="text-gray-300">•</span>
+                    <button 
+                        onClick={() => onNavigateToPolicy?.('contact')}
+                        className="hover:text-blue-600 hover:underline transition-colors"
+                    >
+                        Contact Us
+                    </button>
+                </div>
+                
+                <div className="text-center text-xs text-gray-400">
+                    <p>© 2025 CleverQuit by Anuj Goel. All rights reserved.</p>
+                </div>
+            </div>
         </div>
     </div>
 );
@@ -652,7 +690,7 @@ const MethodSelectionScreen: React.FC<{
 );
 
 // Main Value-First Onboarding Component
-const ValueFirstOnboarding: React.FC<ValueFirstOnboardingProps> = ({ onComplete }) => {
+const ValueFirstOnboarding: React.FC<ValueFirstOnboardingProps> = ({ onComplete, onNavigateToPolicy }) => {
     const [step, setStep] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState<Partial<OnboardingProfile>>({
@@ -706,7 +744,7 @@ const ValueFirstOnboarding: React.FC<ValueFirstOnboardingProps> = ({ onComplete 
     const renderStep = () => {
         switch (step) {
             case 0:
-                return <WelcomeScreen onNext={() => setStep(1)} />;
+                return <WelcomeScreen onNext={() => setStep(1)} onNavigateToPolicy={onNavigateToPolicy} />;
             case 1:
                 return (
                     <ProfileCollectionScreen

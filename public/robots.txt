@@ -1,0 +1,11 @@
+# robots.txt for CleverQuit
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /chat
+Disallow: /progress
+Disallow: /content
+
+# Sitemap
+Sitemap: https://cleverquit.com/sitemap.xml

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './components/AuthContext';
 import { AuthScreen } from './components/AuthScreen';
 import Onboarding from './components/Onboarding';
@@ -11,6 +12,11 @@ import ContentHub from './components/ContentHub';
 import ChatBot from './components/ChatBot';
 import Settings from './components/Settings';
 import LoadingWithQuotes from './components/LoadingWithQuotes';
+import { ContactUs } from './components/ContactUs';
+import { TermsAndConditions } from './components/TermsAndConditions';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { RefundCancellationPolicy } from './components/RefundCancellationPolicy';
+import SEO from './components/SEO';
 import { AppView, OnboardingProfile, QuitPlan, ProgressData, Subscription, SubscriptionStatus, Methodology } from './types';
 import { Feather, BookOpen, MessageSquare, BarChart2, Settings as SettingsIcon } from 'lucide-react';
 
@@ -27,6 +33,8 @@ enum OnboardingFlow {
 // Main authenticated app component
 const AuthenticatedApp: React.FC = () => {
   const { user, profile, loading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [currentView, setCurrentView] = useState<AppView>(AppView.Dashboard);
   const [quitPlan, setQuitPlan] = useState<QuitPlan | null>(null);
   const [progressData, setProgressData] = useState<ProgressData | null>(null);
@@ -319,7 +327,12 @@ const AuthenticatedApp: React.FC = () => {
       case AppView.Chat:
         return <ChatBot />;
       case AppView.Settings:
-        return <Settings subscription={subscription} setSubscription={handleSetSubscription} handleReset={handleReset} />;
+        return <Settings 
+          subscription={subscription} 
+          setSubscription={handleSetSubscription} 
+          handleReset={handleReset}
+          onNavigateToPolicy={(page) => navigate(`/${page}`)}
+        />;
       default:
         return <Dashboard userProfile={profile} quitPlan={quitPlan} progressData={progressData} setProgressData={setProgressData} subscription={subscription} />;
     }
@@ -344,6 +357,11 @@ const AuthenticatedApp: React.FC = () => {
       // Main app with navigation
       return (
         <div className="min-h-screen bg-gray-50">
+          <SEO 
+            title="Dashboard"
+            description="Track your smoke-free journey with personalized insights and support."
+            canonical="https://cleverquit.com/dashboard"
+          />
           {/* Header */}
           <header className="bg-white shadow-sm border-b">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -443,9 +461,18 @@ const AuthenticatedApp: React.FC = () => {
   // This handles the complete onboarding -> auth -> dashboard flow
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <SEO 
+        title="Quit Smoking with AI-Powered Support"
+        description="Join CleverQuit and break free from smoking with personalized AI coaching, proven strategies, and 24/7 support."
+        keywords="quit smoking, stop smoking, smoking cessation, AI coach, quit smoking app"
+        canonical="https://cleverquit.com"
+      />
       {/* Onboarding flow components will be rendered here */}
       {onboardingFlow === OnboardingFlow.ValueFirst && (
-        <ValueFirstOnboarding onComplete={handleValueFirstComplete} />
+        <ValueFirstOnboarding 
+          onComplete={handleValueFirstComplete}
+          onNavigateToPolicy={(page) => navigate(`/${page}`)}
+        />
       )}
       
       {onboardingFlow === OnboardingFlow.Paywall && collectedProfile && (
@@ -466,7 +493,10 @@ const AuthenticatedApp: React.FC = () => {
       )}
       
       {onboardingFlow === OnboardingFlow.Auth && !user && (
-        <AuthScreen onComplete={handleAuthComplete} />
+        <AuthScreen 
+          onComplete={handleAuthComplete}
+          onNavigateToPolicy={(page) => navigate(`/${page}`)}
+        />
       )}
       
       {onboardingFlow === OnboardingFlow.Profile && user && collectedProfile && (
@@ -502,12 +532,80 @@ const AuthenticatedApp: React.FC = () => {
   );
 };
 
-// Root App component with AuthProvider
+// Policy page components with SEO
+const TermsPage: React.FC = () => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <SEO 
+        title="Terms and Conditions"
+        description="Terms and conditions for using CleverQuit's smoke cessation app and services."
+        canonical="https://cleverquit.com/terms"
+      />
+      <TermsAndConditions onBack={() => navigate(-1)} />
+    </>
+  );
+};
+
+const PrivacyPage: React.FC = () => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <SEO 
+        title="Privacy Policy"
+        description="Learn how CleverQuit protects your data and respects your privacy."
+        canonical="https://cleverquit.com/privacy"
+      />
+      <PrivacyPolicy onBack={() => navigate(-1)} />
+    </>
+  );
+};
+
+const RefundPage: React.FC = () => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <SEO 
+        title="Refund & Cancellation Policy"
+        description="CleverQuit's cancellation policy and subscription terms."
+        canonical="https://cleverquit.com/refund"
+      />
+      <RefundCancellationPolicy onBack={() => navigate(-1)} />
+    </>
+  );
+};
+
+const ContactPage: React.FC = () => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <SEO 
+        title="Contact Us"
+        description="Get in touch with CleverQuit support team for assistance."
+        canonical="https://cleverquit.com/contact"
+      />
+      <ContactUs onBack={() => navigate(-1)} />
+    </>
+  );
+};
+
+// Root App component with AuthProvider and Router
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <AuthenticatedApp />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          {/* Policy pages - accessible to everyone */}
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/refund" element={<RefundPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          
+          {/* Main app - handles authentication and dashboard */}
+          <Route path="/*" element={<AuthenticatedApp />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 };
 

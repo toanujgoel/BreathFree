@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Subscription, SubscriptionStatus } from '../types';
-import { Star, RotateCcw, ShieldAlert } from 'lucide-react';
+import { Star, RotateCcw, ShieldAlert, FileText, Mail, Shield, RefreshCw, Lock, ChevronRight } from 'lucide-react';
 
 interface SettingsProps {
     subscription: Subscription;
     setSubscription: (sub: Subscription) => void;
     handleReset: () => void;
+    onNavigateToPolicy?: (page: 'terms' | 'privacy' | 'refund' | 'contact') => void;
 }
 
 const ConfirmationModal: React.FC<{
@@ -31,7 +32,7 @@ const ConfirmationModal: React.FC<{
     </div>
 );
 
-const Settings: React.FC<SettingsProps> = ({ subscription, setSubscription, handleReset }) => {
+const Settings: React.FC<SettingsProps> = ({ subscription, setSubscription, handleReset, onNavigateToPolicy }) => {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [confirmModalConfig, setConfirmModalConfig] = useState<{
         title: string;
@@ -116,12 +117,68 @@ const Settings: React.FC<SettingsProps> = ({ subscription, setSubscription, hand
                 )}
             </div>
 
+            {/* Legal & Support Section */}
+            <div className="bg-bg-card p-4 rounded-2xl shadow-sm">
+                <h2 className="font-bold mb-4 text-lg">Legal & Support</h2>
+                <div className="space-y-2">
+                    <button 
+                        onClick={() => onNavigateToPolicy?.('contact')}
+                        className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                        <div className="flex items-center">
+                            <Mail className="w-5 h-5 text-blue-500 mr-3" />
+                            <span className="text-text-primary">Contact Us</span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                    </button>
+                    
+                    <button 
+                        onClick={() => onNavigateToPolicy?.('terms')}
+                        className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                        <div className="flex items-center">
+                            <FileText className="w-5 h-5 text-blue-500 mr-3" />
+                            <span className="text-text-primary">Terms & Conditions</span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                    </button>
+                    
+                    <button 
+                        onClick={() => onNavigateToPolicy?.('privacy')}
+                        className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                        <div className="flex items-center">
+                            <Lock className="w-5 h-5 text-blue-500 mr-3" />
+                            <span className="text-text-primary">Privacy Policy</span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                    </button>
+                    
+                    <button 
+                        onClick={() => onNavigateToPolicy?.('refund')}
+                        className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                    >
+                        <div className="flex items-center">
+                            <RefreshCw className="w-5 h-5 text-blue-500 mr-3" />
+                            <span className="text-text-primary">Refund & Cancellation Policy</span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                    </button>
+                </div>
+            </div>
+
              <div className="bg-bg-card p-4 rounded-2xl shadow-sm">
                 <h2 className="font-bold mb-4 text-lg text-accent-red flex items-center"><ShieldAlert size={20} className="mr-2"/> Danger Zone</h2>
                  <button onClick={onReset} className="w-full bg-accent-red text-white font-bold py-3 rounded-full flex items-center justify-center gap-2">
                     <RotateCcw size={18} /> Reset and Start a New Challenge
                 </button>
                 <p className="text-xs text-text-secondary mt-2 text-center">This action cannot be undone.</p>
+            </div>
+
+            {/* App Version */}
+            <div className="text-center text-xs text-gray-500">
+                <p>CleverQuit v1.0.0</p>
+                <p className="mt-1">© 2025 Anuj Goel. All rights reserved.</p>
             </div>
 
         </div>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { supabase } from '../services/supabaseClient'
+import { supabase, signInWithGoogle as supabaseSignInWithGoogle } from '../services/supabaseClient'
 import { DatabaseService } from '../services/databaseService'
 import type { AuthUser, UserProfile } from '../types'
 
@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean
   signUp: (email: string, password: string, userData?: Partial<UserProfile>) => Promise<any>
   signIn: (email: string, password: string) => Promise<any>
+  signInWithGoogle: () => Promise<any>
   signOut: () => Promise<void>
   updateProfile: (updates: Partial<UserProfile>) => Promise<any>
   refreshProfile: () => Promise<void>
@@ -153,6 +154,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { data, error }
   }
 
+  const signInWithGoogle = async () => {
+    return await supabaseSignInWithGoogle()
+  }
+
   const signOut = async () => {
     await supabase.auth.signOut()
     setUser(null)
@@ -191,6 +196,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       loading, 
       signUp, 
       signIn, 
+      signInWithGoogle,
       signOut, 
       updateProfile,
       refreshProfile

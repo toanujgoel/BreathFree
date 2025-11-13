@@ -6,6 +6,10 @@ export enum AppView {
   Content = 'CONTENT',
   Chat = 'CHAT',
   Settings = 'SETTINGS',
+  Terms = 'TERMS',
+  Privacy = 'PRIVACY',
+  Refund = 'REFUND',
+  Contact = 'CONTACT',
 }
 
 export enum Methodology {
